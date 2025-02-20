@@ -11,3 +11,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])  # Hash da senha
         return super().create(validated_data)
+
+
+from rest_framework import serializers
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)

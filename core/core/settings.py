@@ -43,9 +43,24 @@ INSTALLED_APPS = [
     'drf_yasg',
     'drf_spectacular',
     'drf_spectacular_sidecar',
+    'rest_framework_simplejwt',
     
     #apps
     'authentication',
+]
+
+AUTH_USER_MODEL = 'authentication.User'
+
+
+# Autenticação por JWT
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Permite autenticação padrão do Django
 ]
 
 

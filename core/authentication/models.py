@@ -17,8 +17,13 @@ class User(AbstractUser):
         ('usuario', 'Usuário'),
         ('personal', 'Personal'),
     ]
+    email = models.EmailField(unique=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     phone = models.CharField(max_length=15, unique=True)
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
 
     def __str__(self):
         return self.username
