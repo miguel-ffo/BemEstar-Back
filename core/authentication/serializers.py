@@ -86,3 +86,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         
         # Retorna o token de acesso e refresh
         return super().validate(attrs)
+
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)

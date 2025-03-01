@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from .models import User
-from .serializers import PersonalRegisterSerializer, UserRegisterSerializer
+from .serializers import ChangePasswordSerializer, PersonalRegisterSerializer, UserRegisterSerializer
 
 class RegisterPersonalView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -72,3 +72,37 @@ def login_view(request):
 
         except json.JSONDecodeError:
             return Response({"error": "Invalid JSON."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.contrib.auth.models import User
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]  # Garante que o usuário esteja autenticado
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            old_password = serializer.validated_data['old_password']
+            new_password = serializer.validated_data['new_password']
+            
+            # Checa se a senha antiga fornecida é a correta
+            if not request.user.check_password(old_password):
+                return Response({"error": "Old password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Atualiza a senha
+            request.user.set_password(new_password)
+            request.user.save()
+            
+            # Opcional: Reautentica o usuário após a mudança de senha
+            # (Isso é útil se você deseja que o usuário seja desconectado após trocar a senha)
+            authenticate(request, username=request.user.username, password=new_password)
+
+            return Response({"message": "Password changed successfully."}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
