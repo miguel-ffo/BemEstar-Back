@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
     'rest_framework_simplejwt',
+    'rest_framework.authtoken',
+
     
     #apps
     'authentication',
@@ -52,16 +54,19 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'authentication.User'
 
 
-# Autenticação por JWT
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # Permite autenticação padrão do Django
-]
+
+# core/settings.py
+AUTHENTICATION_BACKENDS = (
+    'authentication.authentication_backends.EmailAuthBackend',  # Registra o backend customizado
+    'django.contrib.auth.backends.ModelBackend',  # O backend default do Django
+)
 
 
 
@@ -75,9 +80,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-}
+
 
 ROOT_URLCONF = 'core.urls'
 
