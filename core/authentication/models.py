@@ -26,24 +26,3 @@ class User(AbstractUser):
     def __str__(self):
         return self.email  # Mostra o email como representação do usuário
 # Mostra o email ao invés do username
-
-
-from django.db import models
-from django.conf import settings
-
-class Workout(models.Model):
-    STATUS_CHOICES = (
-        ('done', 'Treino Concluído'),
-        ('missed', 'Faltou'),
-    )
-
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE, 
-        related_name="workouts"
-    )
-    date = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.date} - {self.get_status_display()}"

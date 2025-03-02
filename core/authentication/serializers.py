@@ -32,43 +32,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return user
     
     
-from rest_framework import serializers
-from .models import Workout
-
-class WorkoutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Workout
-        fields = ['user', 'date', 'status']
-
-    def create(self, validated_data):
-        user = self.context['request'].user
-        if user.role != 'usuario':
-            raise serializers.ValidationError("Apenas usuários podem registrar frequência.")
-        return Workout.objects.create(**validated_data)
-
-
-
-from rest_framework import serializers
-from .models import Workout
-
-class WorkoutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Workout
-        fields = ['date', 'status']
-
-    def create(self, validated_data):
-        user = self.context['request'].user
-        if user.role != 'usuario':
-            raise serializers.ValidationError("Apenas usuários podem registrar frequência.")
-        return Workout.objects.create(user=user, **validated_data)
-
 
 # core/authentication/serializers.py
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model  # Importa get_user_model
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+class LoginSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         email = attrs.get('username')  # Aqui, "username" é o email fornecido pelo usuário
         password = attrs.get('password')
@@ -89,6 +59,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 
+from rest_framework import serializers
+
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
+    old_password = serializers.CharField(
+        required=True, 
+        write_only=True, 
+        style={"input_type": "password"}
+    )
+    new_password = serializers.CharField(
+        required=True, 
+        write_only=True, 
+        style={"input_type": "password"}
+    )
