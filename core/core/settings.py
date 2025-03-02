@@ -40,19 +40,25 @@ INSTALLED_APPS = [
     
     #bibliotecas
     'rest_framework',
-    'drf_yasg',
     'drf_spectacular',
-    'drf_spectacular_sidecar',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
 
     
     #apps
     'authentication',
+    'workouts',
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'BemEstar 60+ API',
+    'DESCRIPTION': 'App para controle de treinamento de idosos com 60+ anos ',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
