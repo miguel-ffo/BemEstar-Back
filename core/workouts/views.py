@@ -1,8 +1,11 @@
 from rest_framework import generics, permissions
-from .models import Workout
-from .serializers import WorkoutSerializer
 from rest_framework.exceptions import PermissionDenied
 
+from .models import Workout
+from .serializers import WorkoutSerializer, WorkoutListSerializer
+
+
+#Registrar Treino
 
 class RegisterWorkoutView(generics.CreateAPIView):
     """Usuário registra a própria frequência de treino"""
@@ -17,12 +20,7 @@ class RegisterWorkoutView(generics.CreateAPIView):
         # Salva o treino com o usuário autenticado
         serializer.save(user=self.request.user)
 
-
-from rest_framework import generics, permissions
-from .models import Workout
-from .serializers import WorkoutListSerializer
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.response import Response
+# Listar Treinos
 
 class ListWorkoutView(generics.ListAPIView):
     """Exibe os treinos de um usuário (aluno) para um personal ou os treinos do próprio usuário."""
