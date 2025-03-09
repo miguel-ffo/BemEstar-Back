@@ -101,5 +101,67 @@ class DailyRecordCreateView(APIView):
 
         # Retorna o serializer da resposta
         serializer = DailyRecordSerializer(daily_record)
-        return Response({"message": "Registro diário criado com sucesso.", }, status=status.HTTP_201_CREATED)
+        return Response({"message": "Registro diário criado com sucesso.", "data": serializer.data}, status=status.HTTP_201_CREATED)
 
+
+
+# views.py
+# views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from .models import GlycemiaModel, BloodPressureModel, WaterConsumeModel
+from .serializers import GlycemiaSerializer, BloodPressureSerializer, WaterConsumeSerializer
+from django.shortcuts import get_object_or_404
+from datetime import datetime
+
+class DailyRecordGetView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Pegando o usuário autenticado
+        user = request.user
+
+        # Pegando o parâmetro date da URL
+        date_str = request.query_params.get('date')
+
+        if not date_str:
+            return Response({"detail": "Parâmetro 'date' é obrigatório."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({"detail": "Formato de data inválido. Use o formato 'YYYY-MM-DD'."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Buscando os registros de glicemia, pressão arterial e controle hídrico para o usuário e data fornecidos
+        glycemia = GlycemiaModel.objects.filter(user=user, date=date).first()
+        blood_pressure = BloodPressureModel.objects.filter(user=user, date=date).first()
+        hydration = WaterConsumeModel.objects.filter(user=user, date=date).first()
+
+        # Caso algum registro não seja encontrado
+        if not glycemia or not blood_pressure or not hydration:
+            return Response({"detail": "Ficha diária não encontrada para a data fornecida."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Serializando os dados
+        glycemia_serializer = GlycemiaSerializer(glycemia)
+        blood_pressure_serializer = BloodPressureSerializer(blood_pressure)
+        hydration_serializer = WaterConsumeSerializer(hydration)
+
+        # Montando a resposta
+        response_data = {
+            "glycemia": {
+                **glycemia_serializer.data,
+                "message": "Índices de glicemia registrados com sucesso"
+            },
+            "blood_pressure": {
+                **blood_pressure_serializer.data,
+                "message": "Pressão arterial registrada com sucesso"
+            },
+            "water_intake": {
+                **hydration_serializer.data,
+                "message": "Controle hídrico atualizado com sucesso"
+            }
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)

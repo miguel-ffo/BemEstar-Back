@@ -62,3 +62,9 @@ class DailyRecordSerializer(serializers.ModelSerializer):
                 "post_workout_diastolic": response['blood_pressure']['post_workout_diastolic'],
             }
         }
+
+
+class DailyRecordGetSerializer(serializers.Serializer):
+    glycemia = GlycemiaSerializer()
+    blood_pressure = BloodPressureSerializer()
+    water_intake = WaterConsumeSerializer()
