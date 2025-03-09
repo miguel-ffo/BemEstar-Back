@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     #apps
     'authentication',
     'workouts',
+    'health',
 ]
 
 AUTH_USER_MODEL = 'authentication.User'

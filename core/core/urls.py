@@ -16,7 +16,8 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     
-    # Inclua o app de autenticação
+    # YOUR PATTERNS
     path('auth/', include('authentication.urls'), name='Authentication'),
     path('workouts/', include('workouts.urls'), name='Workouts'),
+    path('health/', include('health.urls'), name='Health'),
 ]
