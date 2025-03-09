@@ -56,3 +56,50 @@ class AnamnesisCreateView(generics.CreateAPIView):
         
         # Associa a anamnese ao usuário autenticado
         serializer.save(user=self.request.user)
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import DailyRecordModel, GlycemiaModel, BloodPressureModel
+from .serializers import DailyRecordSerializer
+
+class DailyRecordCreateView(APIView):
+    def post(self, request, *args, **kwargs):
+        # Extrair os dados de glicemia e pressão arterial
+        glycemia_data = request.data.get('glycemia')
+        blood_pressure_data = request.data.get('blood_pressure')
+        date = request.data.get('date')
+
+        if not glycemia_data or not blood_pressure_data or not date:
+            return Response({"message": "Todos os campos são obrigatórios."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Criar os registros de glicemia e pressão arterial
+        glycemia = GlycemiaModel.objects.create(
+            user=request.user,
+            date=date,
+            pre_workout=glycemia_data['pre_workout'],
+            post_workout=glycemia_data['post_workout']
+        )
+
+        blood_pressure = BloodPressureModel.objects.create(
+            user=request.user,
+            date=date,
+            pre_workout_systolic=blood_pressure_data['pre_workout_systolic'],
+            pre_workout_diastolic=blood_pressure_data['pre_workout_diastolic'],
+            post_workout_systolic=blood_pressure_data['post_workout_systolic'],
+            post_workout_diastolic=blood_pressure_data['post_workout_diastolic']
+        )
+
+        # Criar o registro diário com as referências para glicemia e pressão arterial
+        daily_record = DailyRecordModel.objects.create(
+            user=request.user,
+            date=date,
+            glycemia=glycemia,
+            blood_pressure=blood_pressure
+        )
+
+        # Retorna o serializer da resposta
+        serializer = DailyRecordSerializer(daily_record)
+        return Response({"message": "Registro diário criado com sucesso.", }, status=status.HTTP_201_CREATED)
+

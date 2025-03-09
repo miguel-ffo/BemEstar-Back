@@ -25,3 +25,40 @@ class AnamnesisSerializer(serializers.ModelSerializer):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
 
+from rest_framework import serializers
+from .models import DailyRecordModel, GlycemiaModel, BloodPressureModel
+
+class GlycemiaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GlycemiaModel
+        fields = ['pre_workout', 'post_workout']
+
+class BloodPressureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BloodPressureModel
+        fields = ['pre_workout_systolic', 'pre_workout_diastolic', 'post_workout_systolic', 'post_workout_diastolic']
+
+class DailyRecordSerializer(serializers.ModelSerializer):
+    glycemia = GlycemiaSerializer()
+    blood_pressure = BloodPressureSerializer()
+
+    class Meta:
+        model = DailyRecordModel
+        fields = ['date', 'glycemia', 'blood_pressure']
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        return {
+            "glycemia": {
+                "date": response['date'],
+                "pre_workout": response['glycemia']['pre_workout'],
+                "post_workout": response['glycemia']['post_workout'],
+            },
+            "blood_pressure": {
+                "date": response['date'],
+                "pre_workout_systolic": response['blood_pressure']['pre_workout_systolic'],
+                "pre_workout_diastolic": response['blood_pressure']['pre_workout_diastolic'],
+                "post_workout_systolic": response['blood_pressure']['post_workout_systolic'],
+                "post_workout_diastolic": response['blood_pressure']['post_workout_diastolic'],
+            }
+        }

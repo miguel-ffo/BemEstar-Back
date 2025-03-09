@@ -32,3 +32,43 @@ class AnamnesisModel(models.Model):
 
     def __str__(self):
         return f"Anamnese de {self.user.get_full_name() or self.user.email}"
+
+
+# Modelo para glicemia
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+
+# Modelo para glicemia
+class GlycemiaModel(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)
+    pre_workout = models.IntegerField()
+    post_workout = models.IntegerField()
+
+    def __str__(self):
+        return f"Glicemia de {self.user} - {self.date}"
+
+# Modelo para pressão arterial
+class BloodPressureModel(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)
+    pre_workout_systolic = models.IntegerField()
+    pre_workout_diastolic = models.IntegerField()
+    post_workout_systolic = models.IntegerField()
+    post_workout_diastolic = models.IntegerField()
+
+    def __str__(self):
+        return f"Pressão arterial de {self.user} - {self.date}"
+
+# Modelo para o registro diário de saúde
+class DailyRecordModel(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)
+    
+    # Relacionamentos com os modelos de glicemia e pressão arterial
+    glycemia = models.ForeignKey(GlycemiaModel, on_delete=models.CASCADE, null=True, blank=True)
+    blood_pressure = models.ForeignKey(BloodPressureModel, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f"Registro diário de saúde de {self.user} - {self.date}"
