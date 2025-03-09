@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 User = get_user_model()
+
+# Registrar Personal
 
 class PersonalRegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,6 +16,7 @@ class PersonalRegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
+# Registrar Aluno
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,13 +33,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         validated_data['personal'] = personal  # Relaciona o aluno ao personal
         user = User.objects.create_user(**validated_data)
         return user
-    
-    
 
-# core/authentication/serializers.py
-from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth import get_user_model  # Importa get_user_model
+# Login
 
 class LoginSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -57,9 +55,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         # Retorna o token de acesso e refresh
         return super().validate(attrs)
 
-
-
-from rest_framework import serializers
+# Redefinir Senha
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(

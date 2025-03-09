@@ -1,14 +1,28 @@
 from rest_framework import generics, permissions
-from .models import Workout
-from .serializers import WorkoutSerializer
 from rest_framework.exceptions import PermissionDenied
 
+from .models import Workout
+from .serializers import WorkoutSerializer, WorkoutListSerializer
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+#Registrar Treino
 
 class RegisterWorkoutView(generics.CreateAPIView):
     """Usuário registra a própria frequência de treino"""
     queryset = Workout.objects.all()
     serializer_class = WorkoutSerializer
     permission_classes = [permissions.IsAuthenticated]  # Apenas usuários autenticados podem registrar
+
+    @swagger_auto_schema(
+        request_body=WorkoutSerializer,
+        responses={
+            200: openapi.Response("Treino registrado com sucesso."),
+            400: openapi.Response("Dados inválidos ou faltando."),
+            401: openapi.Response("Token de acesso inválido ou faltando."),
+        },
+    )        
 
     def perform_create(self, serializer):
         # Impede que o personal registre treinos
@@ -17,18 +31,21 @@ class RegisterWorkoutView(generics.CreateAPIView):
         # Salva o treino com o usuário autenticado
         serializer.save(user=self.request.user)
 
-
-from rest_framework import generics, permissions
-from .models import Workout
-from .serializers import WorkoutListSerializer
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.response import Response
+# Listar Treinos
 
 class ListWorkoutView(generics.ListAPIView):
     """Exibe os treinos de um usuário (aluno) para um personal ou os treinos do próprio usuário."""
     serializer_class = WorkoutListSerializer
     permission_classes = [permissions.IsAuthenticated]  # Apenas usuários autenticados podem acessar
 
+    
+    @swagger_auto_schema(
+        request_body=WorkoutListSerializer,
+        responses={
+            200: openapi.Response("Lista de treinos obtida com sucesso."),
+            401: openapi.Response("Token de acesso inválido ou faltando."),
+        },
+    )
     
     def get_queryset(self):
         user = self.request.user
