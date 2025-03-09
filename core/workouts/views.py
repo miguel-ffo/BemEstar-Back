@@ -4,6 +4,8 @@ from rest_framework.exceptions import PermissionDenied
 from .models import Workout
 from .serializers import WorkoutSerializer, WorkoutListSerializer
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 #Registrar Treino
 
@@ -12,6 +14,15 @@ class RegisterWorkoutView(generics.CreateAPIView):
     queryset = Workout.objects.all()
     serializer_class = WorkoutSerializer
     permission_classes = [permissions.IsAuthenticated]  # Apenas usuários autenticados podem registrar
+
+    @swagger_auto_schema(
+        request_body=WorkoutSerializer,
+        responses={
+            200: openapi.Response("Treino registrado com sucesso."),
+            400: openapi.Response("Dados inválidos ou faltando."),
+            401: openapi.Response("Token de acesso inválido ou faltando."),
+        },
+    )        
 
     def perform_create(self, serializer):
         # Impede que o personal registre treinos
@@ -27,6 +38,14 @@ class ListWorkoutView(generics.ListAPIView):
     serializer_class = WorkoutListSerializer
     permission_classes = [permissions.IsAuthenticated]  # Apenas usuários autenticados podem acessar
 
+    
+    @swagger_auto_schema(
+        request_body=WorkoutListSerializer,
+        responses={
+            200: openapi.Response("Lista de treinos obtida com sucesso."),
+            401: openapi.Response("Token de acesso inválido ou faltando."),
+        },
+    )
     
     def get_queryset(self):
         user = self.request.user

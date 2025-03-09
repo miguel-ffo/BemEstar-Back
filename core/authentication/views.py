@@ -13,21 +13,42 @@ from .serializers import ChangePasswordSerializer, PersonalRegisterSerializer, U
 
 # Registro de Personal
 class RegisterPersonalView(generics.CreateAPIView):
+    """ Registra um Personal"""
     queryset = User.objects.all()
     serializer_class = PersonalRegisterSerializer
     permission_classes = [permissions.AllowAny]  # Qualquer um pode se registrar
     
+    @swagger_auto_schema(
+        request_body=PersonalRegisterSerializer,
+        responses={
+            200: openapi.Response("Personal registrado com sucesso."),
+            400: openapi.Response("Dados inválidos ou faltando."),
+        },
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 # Registro de Usuário
 
 class RegisterUserView(generics.CreateAPIView):
+    """ Registra um Usuário"""
     queryset = User.objects.all()
     serializer_class = UserRegisterSerializer
     permission_classes = [permissions.IsAuthenticated]  # Só personal autenticado pode cadastrar
 
+    @swagger_auto_schema(
+        request_body=UserRegisterSerializer,
+        responses={
+            200: openapi.Response("Usuário registrado com sucesso."),
+            400: openapi.Response("Dados inválidos ou faltando."),
+        },
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 # Listar Usuários
 
 class ListAlunosView(viewsets.ReadOnlyModelViewSet):
+    """ Listar Usuários cadastrados pelo Personal autenticado"""
     serializer_class = UserRegisterSerializer
     permission_classes = [IsAuthenticated]
 
@@ -40,6 +61,7 @@ class ListAlunosView(viewsets.ReadOnlyModelViewSet):
 # Login
 
 class LoginView(APIView):
+    """ Login de Usuários e Personal"""
     permission_classes = [AllowAny]  # Permite qualquer um fazer login
 
     @swagger_auto_schema(
@@ -70,12 +92,17 @@ class LoginView(APIView):
 # Trocar Senha
 
 class ChangePasswordView(generics.GenericAPIView):
+    """ Alterar Senha"""
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
     
     @swagger_auto_schema(
         request_body=ChangePasswordSerializer,
-        responses={200: openapi.Response("Senha alterada com sucesso")},
+        responses={200: openapi.Response("Senha alterada com sucesso"),
+                   401: openapi.Response("Credenciais inválidas."),
+                   400: openapi.Response("Preencha o email e senha.")
+                },
+        
     )
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
