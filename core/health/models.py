@@ -2,6 +2,9 @@ from django.utils import timezone
 from django.conf import settings
 from django.db import models
 
+
+# Modelo para o registro de consumo de água
+
 class WaterConsumeModel(models.Model):
     
     user = models.ForeignKey(
@@ -16,6 +19,8 @@ class WaterConsumeModel(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.email} - {self.date} - {self.water_goal} - {self.water_consumed}"  
+
+# Modelo para a ficha de anamnese
 
 class AnamnesisModel(models.Model):
     user = models.OneToOneField(
@@ -35,11 +40,7 @@ class AnamnesisModel(models.Model):
 
 
 # Modelo para glicemia
-from django.db import models
-from django.conf import settings
-from django.utils import timezone
 
-# Modelo para glicemia
 class GlycemiaModel(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
@@ -49,7 +50,9 @@ class GlycemiaModel(models.Model):
     def __str__(self):
         return f"Glicemia de {self.user} - {self.date}"
 
+
 # Modelo para pressão arterial
+
 class BloodPressureModel(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
@@ -60,8 +63,10 @@ class BloodPressureModel(models.Model):
 
     def __str__(self):
         return f"Pressão arterial de {self.user} - {self.date}"
+    
 
 # Modelo para o registro diário de saúde
+
 class DailyRecordModel(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
