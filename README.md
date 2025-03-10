@@ -56,21 +56,26 @@ JWT (JSON Web Tokens) para autenticação
 ```
 git clone https://github.com/miguel-ffo/BemEstar-Back.git
 ```
+### Crie e ative uma venv:
+```
+python -m venv venv
+venv/Scripts/activate
+```
 
 ### Instale as dependências:
 
 ```
 cd BemEstar-Back
 pip install -r requirements.txt
+cd core
 ```
-
 ### Execute as migrações para criar as tabelas no banco de dados:
 
 ```
 python manage.py migrate
 ```
 
-###Crie um superusuário para acessar a API:
+### Crie um superusuário para acessar a API:
 
 ```
 python manage.py createsuperuser
@@ -83,6 +88,7 @@ python manage.py runserver
 ```
 
 Agora a API estará disponível em  http://127.0.0.1:800
+Para acessar o painel Swagger é so acesar a url: /api/docs
 
 # Endpoints
 
