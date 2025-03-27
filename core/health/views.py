@@ -80,8 +80,13 @@ class AnamnesisCreateView(generics.CreateAPIView):
 
 
 
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from datetime import datetime
+
 class DailyRecordCreateView(APIView):
-    """Registra um novo registro diário de saúde de um usuário."""
+    """Registra ou atualiza um registro diário de saúde de um usuário."""
     
     def post(self, request, *args, **kwargs):
         # Extrair os dados de glicemia e pressão arterial
@@ -92,39 +97,70 @@ class DailyRecordCreateView(APIView):
         if not glycemia_data or not blood_pressure_data or not date:
             return Response({"message": "Todos os campos são obrigatórios."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Criar os registros de glicemia e pressão arterial
-        glycemia = GlycemiaModel.objects.create(
-            user=request.user,
-            date=date,
-            pre_workout=glycemia_data['pre_workout'],
-            post_workout=glycemia_data['post_workout']
-        )
+        # Convertendo a string de data para um objeto datetime
+        try:
+            date = datetime.strptime(date, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({"message": "Formato de data inválido. Use o formato 'YYYY-MM-DD'."}, status=status.HTTP_400_BAD_REQUEST)
 
-        blood_pressure = BloodPressureModel.objects.create(
-            user=request.user,
-            date=date,
-            pre_workout_systolic=blood_pressure_data['pre_workout_systolic'],
-            pre_workout_diastolic=blood_pressure_data['pre_workout_diastolic'],
-            post_workout_systolic=blood_pressure_data['post_workout_systolic'],
-            post_workout_diastolic=blood_pressure_data['post_workout_diastolic']
-        )
+        # Verifica se já existe um registro diário para a data e o usuário
+        daily_record = DailyRecordModel.objects.filter(user=request.user, date=date).first()
 
-        # Criar o registro diário com as referências para glicemia e pressão arterial
-        daily_record = DailyRecordModel.objects.create(
-            user=request.user,
-            date=date,
-            glycemia=glycemia,
-            blood_pressure=blood_pressure
-        )
+        if daily_record:
+            # Se o registro já existir, atualiza os registros de glicemia e pressão arterial
+            glycemia = daily_record.glycemia
+            blood_pressure = daily_record.blood_pressure
+        else:
+            # Caso contrário, cria novos registros de glicemia e pressão arterial
+            glycemia = GlycemiaModel.objects.create(
+                user=request.user,
+                date=date,
+                pre_workout=glycemia_data['pre_workout'],
+                post_workout=glycemia_data['post_workout']
+            )
 
-        # Retorna o serializer da resposta
+            blood_pressure = BloodPressureModel.objects.create(
+                user=request.user,
+                date=date,
+                pre_workout_systolic=blood_pressure_data['pre_workout_systolic'],
+                pre_workout_diastolic=blood_pressure_data['pre_workout_diastolic'],
+                post_workout_systolic=blood_pressure_data['post_workout_systolic'],
+                post_workout_diastolic=blood_pressure_data['post_workout_diastolic']
+            )
+
+            # Cria o registro diário com os novos dados
+            daily_record = DailyRecordModel.objects.create(
+                user=request.user,
+                date=date,
+                glycemia=glycemia,
+                blood_pressure=blood_pressure
+            )
+
+        # Atualiza os registros de glicemia e pressão arterial caso já existam
+        if glycemia:
+            glycemia.pre_workout = glycemia_data['pre_workout']
+            glycemia.post_workout = glycemia_data['post_workout']
+            glycemia.save()
+
+        if blood_pressure:
+            blood_pressure.pre_workout_systolic = blood_pressure_data['pre_workout_systolic']
+            blood_pressure.pre_workout_diastolic = blood_pressure_data['pre_workout_diastolic']
+            blood_pressure.post_workout_systolic = blood_pressure_data['post_workout_systolic']
+            blood_pressure.post_workout_diastolic = blood_pressure_data['post_workout_diastolic']
+            blood_pressure.save()
+
+        # Retorna a resposta com os dados atualizados ou criados
         serializer = DailyRecordSerializer(daily_record)
-        return Response({"message": "Registro diário criado com sucesso.", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Registro diário criado ou atualizado com sucesso.", "data": serializer.data}, status=status.HTTP_201_CREATED)
 
 
+
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from datetime import datetime
 
 class DailyRecordGetView(APIView):
-    
     """Obtém o registro diário de saúde de um usuário para uma data específica"""
     permission_classes = [IsAuthenticated]
 
@@ -148,9 +184,15 @@ class DailyRecordGetView(APIView):
         blood_pressure = BloodPressureModel.objects.filter(user=user, date=date).first()
         hydration = WaterConsumeModel.objects.filter(user=user, date=date).first()
 
-        # Caso algum registro não seja encontrado
-        if not glycemia or not blood_pressure or not hydration:
-            return Response({"detail": "Ficha diária não encontrada para a data fornecida."}, status=status.HTTP_404_NOT_FOUND)
+        # Caso algum registro não seja encontrado, retorna resposta indicando qual registro está faltando
+        if not glycemia:
+            return Response({"detail": "Registro de glicemia não encontrado para a data fornecida."}, status=status.HTTP_404_NOT_FOUND)
+        
+        if not blood_pressure:
+            return Response({"detail": "Registro de pressão arterial não encontrado para a data fornecida."}, status=status.HTTP_404_NOT_FOUND)
+        
+        if not hydration:
+            return Response({"detail": "Registro de controle hídrico não encontrado para a data fornecida."}, status=status.HTTP_404_NOT_FOUND)
 
         # Serializando os dados
         glycemia_serializer = GlycemiaSerializer(glycemia)
