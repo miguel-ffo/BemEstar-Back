@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import AnamnesisModel, WaterConsumeModel
+from .models import AnamnesisModel, DailyRecordModel, GlycemiaModel, BloodPressureModel, WaterConsumeModel
+
+
+# Registrar Controle Hídrico
 
 class WaterConsumeSerializer(serializers.ModelSerializer):
 
@@ -11,10 +14,7 @@ class WaterConsumeSerializer(serializers.ModelSerializer):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
 
-
-
-from rest_framework import serializers
-from .models import AnamnesisModel
+# Registrar Ficha de Anamnese
 
 class AnamnesisSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,18 +25,21 @@ class AnamnesisSerializer(serializers.ModelSerializer):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
 
-from rest_framework import serializers
-from .models import DailyRecordModel, GlycemiaModel, BloodPressureModel
+# Registrar Glicemia
 
 class GlycemiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = GlycemiaModel
         fields = ['pre_workout', 'post_workout']
 
+# Registrar Pressão Arterial
+
 class BloodPressureSerializer(serializers.ModelSerializer):
     class Meta:
         model = BloodPressureModel
         fields = ['pre_workout_systolic', 'pre_workout_diastolic', 'post_workout_systolic', 'post_workout_diastolic']
+
+# Registrar Registro Diário de Saúde
 
 class DailyRecordSerializer(serializers.ModelSerializer):
     glycemia = GlycemiaSerializer()
@@ -63,6 +66,8 @@ class DailyRecordSerializer(serializers.ModelSerializer):
             }
         }
 
+
+# Obter Registro Diário de Saúde
 
 class DailyRecordGetSerializer(serializers.Serializer):
     glycemia = GlycemiaSerializer()

@@ -1,10 +1,18 @@
+from datetime import datetime
 from django.forms import ValidationError
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
-from .models import WaterConsumeModel
-from .serializers import AnamnesisSerializer, WaterConsumeSerializer
-from django.contrib.auth import get_user_model
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+
+from .models import WaterConsumeModel, DailyRecordModel, GlycemiaModel, BloodPressureModel
+from .serializers import AnamnesisSerializer, BloodPressureSerializer, GlycemiaSerializer, WaterConsumeSerializer, DailyRecordSerializer
+
 
 User = get_user_model()
 
@@ -58,13 +66,10 @@ class AnamnesisCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import DailyRecordModel, GlycemiaModel, BloodPressureModel
-from .serializers import DailyRecordSerializer
 
 class DailyRecordCreateView(APIView):
+    """Registra um novo registro diário de saúde de um usuário."""
+    
     def post(self, request, *args, **kwargs):
         # Extrair os dados de glicemia e pressão arterial
         glycemia_data = request.data.get('glycemia')
@@ -105,18 +110,9 @@ class DailyRecordCreateView(APIView):
 
 
 
-# views.py
-# views.py
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-from .models import GlycemiaModel, BloodPressureModel, WaterConsumeModel
-from .serializers import GlycemiaSerializer, BloodPressureSerializer, WaterConsumeSerializer
-from django.shortcuts import get_object_or_404
-from datetime import datetime
-
 class DailyRecordGetView(APIView):
+    
+    """Obtém o registro diário de saúde de um usuário para uma data específica"""
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
