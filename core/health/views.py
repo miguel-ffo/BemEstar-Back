@@ -52,6 +52,11 @@ class WaterConsumeView(generics.CreateAPIView):
         return Response({"message": "Controle hídrico atualizado com sucesso", "remaining": remaining})
 
 
+from rest_framework import status
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
+from rest_framework import generics
+
 class AnamnesisCreateView(generics.CreateAPIView):
     """Usuário registra sua própria ficha de anamnese"""
     serializer_class = AnamnesisSerializer
@@ -64,6 +69,14 @@ class AnamnesisCreateView(generics.CreateAPIView):
         
         # Associa a anamnese ao usuário autenticado
         serializer.save(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            # Chama o método de criação
+            return super().create(request, *args, **kwargs)
+        except ValidationError as e:
+            # Captura o erro de validação e retorna a resposta adequada
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
 
 
 

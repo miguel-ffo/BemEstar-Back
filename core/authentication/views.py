@@ -91,22 +91,31 @@ class LoginView(APIView):
 
 # Trocar Senha
 
-class ChangePasswordView(generics.GenericAPIView):
-    """ Alterar Senha"""
-    serializer_class = ChangePasswordSerializer
+class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @swagger_auto_schema(
         request_body=ChangePasswordSerializer,
         responses={200: openapi.Response("Senha alterada com sucesso"),
                    401: openapi.Response("Credenciais inválidas."),
-                   400: openapi.Response("Preencha o email e senha.")
-                },
-        
+                   400: openapi.Response("Preencha o email e senha.")},
     )
     def post(self, request):
-        serializer = self.get_serializer(data=request.data)
+        user = request.user
+        serializer = ChangePasswordSerializer(data=request.data)
+
         if serializer.is_valid():
-            # Lógica de alteração de senha
+            old_password = serializer.validated_data['old_password']
+            new_password = serializer.validated_data['new_password']
+            
+            # Verificar se a senha antiga está correta
+            if not user.check_password(old_password):
+                return Response({"detail": "Credenciais inválidas."}, status=401)
+            
+            # Atualizar a senha
+            user.set_password(new_password)
+            user.save()
+
             return Response({"message": "Senha alterada com sucesso"}, status=200)
+        
         return Response(serializer.errors, status=400)
