@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -58,13 +59,12 @@ class LoginSerializer(TokenObtainPairSerializer):
 # Redefinir Senha
 
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(
-        required=True, 
-        write_only=True, 
-        style={"input_type": "password"}
-    )
-    new_password = serializers.CharField(
-        required=True, 
-        write_only=True, 
-        style={"input_type": "password"}
-    )
+    old_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True)
+    confirm_password = serializers.CharField(required=True, write_only=True)
+
+    def validate(self, attrs):
+        # Valida se a nova senha e a confirmação são iguais
+        if attrs['new_password'] != attrs['confirm_password']:
+            raise serializers.ValidationError("As senhas novas não coincidem.")
+        return attrs
