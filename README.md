@@ -1,94 +1,56 @@
 # BemEstar-Back
+Este é o backend do projeto BemEstar, utilizando Django e PostgreSQL no Docker.
 
+### Requisitos
+Docker e Docker Compose instalados em sua máquina.
 
-Este repositório contém a API de saúde do projeto BemEstar, que visa fornecer funcionalidades para registrar e consultar dados de saúde diários, incluindo glicemia, pressão arterial e controle hídrico para usuários autenticados. A API também oferece funcionalidades de registro de usuários, login, alteração de senha e gerenciamento de treinos.
-
-
-## Estrutura do Projeto
-
-### 1. Modelos
-
-**User:**
-Modelo para gerenciar os usuários (com autenticação via JWT).
-
-**DailyRecordModel:**
-Modelo principal para armazenar o registro diário de saúde, incluindo glicemia e pressão arterial.
-
-**GlycemiaModel:**
- Modelo para armazenar os dados de glicemia (pré e pós-treino).
-
-**BloodPressureModel:**
- Modelo para armazenar os dados de pressão arterial (pré e pós-treino).
-
-**Workout:** Modelo para armazenar os dados de treino diário.
-
-### 2. Views
-
-**RegisterPersonalView, RegisterUserView, LoginView, ChangePasswordView, ListAlunosView:**
- Views para registrar, login, alteração de senha e listar usuários.
-
-**WaterConsumeView, AnamnesisCreateView, DailyRecordCreateView, DailyRecordGetView** Views para registrar consumo de agua, registrar anamnese e registrar e visualizar ficha diária de saúde.
-
-**RegisterWorkoutView, ListWorkoutView:** View para registrar e listar o treino diário de um usuário.
-
-### 3. Serializers
-
-**PersonalRegisterSerializer, UserRegisterserializer, LoginSerializer, ChangePasswordSerializer:**
-
- Serializer para registrar, login e alteração de senha de usuários e personal.
-
-**WaterConsumeSerializer, AnamnesisSerializer, GlycemiaSerializer, BloodPressureSerializer, DailyRecordSerializer, DailyRecordGetSerializer :** Serializer para registrar consumo de água, anamnese, glicemia, pressão sanguínea , registrar e listar registros diários de saúde.
-
-**WorkoutSerializer, WorkoutListSerializer:** Serializer para registrar e listar os treinos diários.
-
-## Instruções de Uso
-Pré-requisitos
-Python 3.8+
-Django 3.2+
-Django REST Framework
-JWT (JSON Web Tokens) para autenticação
-
-## Instalação
-
-### Clone o repositório:
-
+##Passo a Passo
+### 1. Clonar o repositório
+Clone o repositório para a sua máquina local:
 
 ```
-git clone https://github.com/miguel-ffo/BemEstar-Back.git
-```
-### Crie e ative uma venv:
-```
-python -m venv venv
-venv/Scripts/activate
-```
-
-### Instale as dependências:
-
-```
+git clone https://github.com/seu_usuario/BemEstar-Back.git
 cd BemEstar-Back
-pip install -r requirements.txt
-cd core
-```
-### Execute as migrações para criar as tabelas no banco de dados:
-
-```
-python manage.py migrate
 ```
 
-### Crie um superusuário para acessar a API:
+### 2. Construir e subir os contêineres
+Com o Docker e Docker Compose instalados, execute o comando abaixo para construir e iniciar os contêineres:
 
 ```
-python manage.py createsuperuser
+docker-compose up --build
 ```
 
-### Inicie o servidor Django:
+Este comando irá:
+
+* Construir as imagens (se necessário).
+* Subir o banco de dados PostgreSQL.
+* Subir o servidor Django.
+* Rodar as migrações automaticamente.
+
+### 3. Criar um superusuário (caso necessário)
+Se você precisar criar um superusuário para acessar o Django Admin, execute o comando abaixo:
 
 ```
-python manage.py runserver
+docker-compose exec web python manage.py createsuperuser
 ```
 
-Agora a API estará disponível em  http://127.0.0.1:800
-Para acessar o painel Swagger é so acesar a url: /api/docs
+Siga as instruções para definir um nome de usuário, e-mail e senha.
+
+### 4. Acessar a aplicação
+Após a inicialização, a aplicação estará disponível no seguinte endereço:
+
+Django Admin: http://localhost:8000/admin/
+
+API: http://localhost:8000/
+
+Você pode acessar a aplicação no seu navegador ou fazer requisições à API.
+
+### 5. Parar os contêineres
+Quando terminar de usar a aplicação, você pode parar os contêineres com:
+
+```
+docker-compose down
+```
 
 # Endpoints
 
@@ -162,7 +124,8 @@ Para acessar o painel Swagger é so acesar a url: /api/docs
 ```json
 {
   "old_password": "test2password",
-  "new_password": "test2"
+  "new_password": "test2",
+  "confirm_password": "test2"
 }
 ```
 
