@@ -4,12 +4,12 @@ Este é o backend do projeto BemEstar, utilizando Django e PostgreSQL no Docker.
 ### Requisitos
 Docker e Docker Compose instalados em sua máquina.
 
-##Passo a Passo
+## Passo a Passo
 ### 1. Clonar o repositório
 Clone o repositório para a sua máquina local:
 
 ```
-git clone https://github.com/seu_usuario/BemEstar-Back.git
+git clone https://github.com/miguel-ffo/BemEstar-Back.git
 cd BemEstar-Back
 ```
 
