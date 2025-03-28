@@ -6,7 +6,7 @@ SECRET_KEY = 'django-insecure-i3c1o)5@u+yu6^zkhil3*k+ikpxq&gxsz@%cnv*d1zuz947epm
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'BemEstar60',
         'USER': 'django_user',  # Seu usuário
         'PASSWORD': 'root',
-        'HOST': 'localhost',  # Ou IP do servidor
+        'HOST': 'db',  # Ou IP do servidor
         'PORT': '5432',
         'OPTIONS': {
             'options': '-c client_encoding=UTF8',
